@@ -1,0 +1,92 @@
+
+<html>
+<style>
+body            { font-family: sans-serif; background: #2F3C72; }
+/*a, h1, h2       { color: #ffffff ; font-family: 'Roboto'}*/
+h1, h2, h3      { font-family: 'Roboto', margin: 1;  color: #ffffff }
+div 			{ font-family: 'Roboto', margin: 1;  color: #ffffff }
+body 			{
+				    padding-top: 50px;
+				    padding-right: 30px;
+				    padding-bottom: 50px;
+				    padding-left: 80px;
+				}
+
+#checkboxes_cols {
+				color:#ffffff;   
+				padding-left: 100px;
+}
+
+#radios_Type {
+				color:#ffffff;   
+				padding-right: 60px;
+}
+
+/*.reveal-if-active {
+  opacity: 0;
+  max-height: 0;
+  overflow: hidden;
+  transform: scale(0.8);
+  transition: 0.5s;
+  input[type="radio"]:checked ~ & {
+    opacity: 1;
+    max-height: 100px;
+    overflow: visible;
+    padding: 10px 20px;
+    transform: scale(1);
+  }
+}*/
+
+</style>
+
+<body>	
+
+<h1>Please choose randomization options</h1>
+<br></br>
+<br></br>
+
+<form action="{{url_for('visualize_scheme')}}" method = 'POST'>
+
+
+
+	<input  type="radio" id = "Simple" name ="randomization_type" value="Simple">Simple random assignment.<br>
+	<br></br>
+
+	<input type="radio" id = "Stratified" name = "randomization_type" value="Stratified">Stratified random assignment.<br>
+	<br></br>
+
+	<div class="reveal-if-active">
+		{% for col in columns %}
+			{% if col not in ['id','participant id','participantid'] %}
+
+				<div id="checkboxes_cols">
+
+				<input type="checkbox" name={{col}} value=1> {{col}}<br>
+				<br></br>
+
+				</div> 
+			{% endif %}
+		{% endfor %}
+	</div>
+
+
+
+	
+
+<input type='submit' value='Submit'>
+</form>
+
+</body>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js">
+	
+$("input[type='radio'][value='groups[]']").on("change",function(){
+	if($(this).is(':checked')){
+		$("#displayDS").show();
+	}else{
+		$("#displayDS").hide();
+  }
+});
+</script>
+
+</html>

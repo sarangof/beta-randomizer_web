@@ -1,0 +1,34 @@
+<html>
+<style>
+body            { font-family: sans-serif; background: #2F3C72; }
+/*a, h1, h2       { color: #ffffff ; font-family: 'Roboto'}*/
+h1, h2, h3      { font-family: 'Roboto', margin: 1;  color: #ffffff }
+div 			{ font-family: 'Roboto', margin: 1;  color: #ffffff }
+body 			{
+				    padding-top: 50px;
+				    padding-right: 30px;
+				    padding-bottom: 50px;
+				    padding-left: 80px;
+				}
+</style>
+<body>
+
+<h1>Create new scheme</h1>
+<h3>Please input file</h3>
+
+<div >
+
+AWESOME. LET'S CREATE SOME SCHEMES.
+
+</div>
+<br>
+</br>
+<form action="{{url_for('create_scheme')}}" method=post enctype=multipart/form-data>
+  <input type=file name=file>
+  <input type=submit value=Upload>
+</form>
+
+</body>
+
+</html>
+
