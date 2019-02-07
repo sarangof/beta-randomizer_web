@@ -1,27 +1,42 @@
 <html>
-<style>
-body            { font-family: sans-serif; background: #2F3C72; }
-/*a, h1, h2       { color: #ffffff ; font-family: 'Roboto'}*/
-h1, h2, h3      { font-family: 'Roboto', margin: 1;  color: #ffffff }
-div 			{ font-family: 'Roboto', margin: 1;  color: #ffffff }
-body 			{
-				    padding-top: 50px;
-				    padding-right: 30px;
-				    padding-bottom: 50px;
-				    padding-left: 80px;
-				}
-</style>
-<body>
+	<style>
+		body            { font-family: sans-serif; background: #2F3C72; }
+		/*a, h1, h2       { color: #ffffff ; font-family: 'Roboto'}*/
+		h1, h2, h3      { font-family: 'Roboto', margin: 1;  color: #ffffff }
+		div 			{ font-family: 'Roboto', margin: 1;  color: #ffffff }
+		body 			{
+						    padding-top: 50px;
+						    padding-right: 30px;
+						    padding-bottom: 50px;
+						    padding-left: 80px;
+						}
+	</style>
+	<head>
 
-<h1>Visualize results</h1>
-<a href="{{ url_for('df_download', filename='data_rand.xlxs') }} color: #ffffff">Download</a>
-<br></br>
-<div>
+		<link
+		    href="http://cdn.pydata.org/bokeh/release/bokeh-0.12.5.min.css"
+		    rel="stylesheet" type="text/css">
+		<link
+		    href="http://cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.5.min.css"
+		    rel="stylesheet" type="text/css">
 
-<img src="data:image/png;base64,{{plot_url}}">'
+		<script src="http://cdn.pydata.org/bokeh/release/bokeh-0.12.5.min.js"></script>
+		<script src="http://cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.5.min.js"></script>
 
-</div>
+	</head>
+	<body>
 
-</body>
+	<h1>Visualize results</h1>
+	<a href="{{ url_for('df_download', filename='data_rand.xlxs') }} color: #ffffff">Download</a>
+<!-- 	{{df = (100*(pd.crosstab(data_rand['group-rct'], data_rand[strat_cols[i]], normalize='columns')))
+	 df = df.stack().reset_index().rename(columns={0:'Percentage'})}} -->
+	<br></br>
+	<div>
+
+	<img src="data:image/png;base64,{{plot_url}}">'
+
+	</div>
+
+	</body>
 
 </html>
