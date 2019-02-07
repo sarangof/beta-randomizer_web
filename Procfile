@@ -1,1 +1,1 @@
-web: gunicorn app:app
+web: gunicorn beta-randomizer_app:app
