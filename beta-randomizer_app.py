@@ -15,7 +15,7 @@ from dateutil import parser
 
 data = pd.DataFrame([])
 
-UPLOAD_FOLDER = '/Users/sarangof/Documents/Litmus/beta_tools/beta-randomizer_web/'
+UPLOAD_FOLDER = '.'
 ALLOWED_EXTENSIONS = set(['csv','xlsx','xlx'])
 
 app = Flask(__name__)
@@ -36,7 +36,7 @@ def choose_rand_option():
         if request.form['desired_action'] == 'update':
             return redirect(url_for('update_scheme'))
     if request.method == 'GET':
-        return render_template('welcome.html')
+        return render_template('welcome.html')  
 
 @app.route('/create_scheme', methods=['GET', 'POST'])
 def create_scheme():
