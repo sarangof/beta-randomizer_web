@@ -30,6 +30,14 @@ def group_age(df):
             df['age'] = df[cols].astype('float')
             df.loc[df['age'] > qtile[len(qtile)-1], 'age'] = '['+str(qtile[len(qtile)-1])+'-'+str(df['age'].max())+']'
             for i in range(len(qtile)-1):
+                print("df['age']")
+                print(df['age'])
+                print("qtile[i]")
+                print(qtile[i])
+                print("qtile[i+1]")
+                print(qtile[i+1])
+                print("(df['age'] >= qtile[i]) & (df['age']<qtile[i+1])")
+                print((df['age'] >= qtile[i]) & (df['age']<qtile[i+1]))
                 df.loc[(df['age'] >= qtile[i]) & (df['age']<qtile[i+1]),'age'] = '['+str(qtile[i])+'-'+str(qtile[i+1])+')'
     return df, age_copy, df.index
 
@@ -40,7 +48,9 @@ def stratify(data_set,strat_columns,pure_randomization_text='Pure randomization'
     * The test_size = 1 should be greater or equal to the number of classes = 5
     * Keep this in mind: https://github.com/scikit-learn/scikit-learn/blob/14031f6/sklearn/model_selection/_split.py#L1190
     """
-
+    print("Stratify function")
+    print("data_set")
+    print( data_set)
     selected_columns = strat_columns
     data_set.dropna(axis=1,inplace=True)#,how='all')
     data_set = data_set.apply(lambda x: x.astype(str).str.lower())

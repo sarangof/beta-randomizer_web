@@ -177,19 +177,26 @@ def visualize_scheme():
                     strat_cols.append(str(cols))
                     print(strat_cols)
             data_rand = stratify(data_set,strat_cols)
+            print("stratifying succesfull")
+            print(data_rand)
 
         if (not data_rand.empty):
+            print("not data-rand empty")
             data_rand.to_excel("data_rand.xlsx")
-            img = create_plots(data_rand,strat_cols)      
-            plt.savefig(img, format='png')
-            img.seek(0)
-            plot_url = base64.b64encode(img.getvalue()).decode()
+            print("saved to excel")
+            #img = create_plots(data_rand,strat_cols)      
+            #print("plots created")
+            #plt.savefig(img, format='png')
+            #print("image created")
+            #img.seek(0)
+            #plot_url = base64.b64encode(img.getvalue()).decode()
             #return '<img src="data:image/png;base64,{}">'.format(plot_url)
             #return render_template('visualize_scheme.html', data_rand = data_rand)
             print("data_rand")
             print(data_rand)
             
-            return render_template('visualize_scheme.html', data_rand = data_rand, plot_url = plot_url)#send_file(app.config['UPLOAD_FOLDER']+"/the-global-city-brown.pdf", as_attachment=True)
+            #return render_template('visualize_scheme.html', data_rand = data_rand, plot_url = plot_url)#send_file(app.config['UPLOAD_FOLDER']+"/the-global-city-brown.pdf", as_attachment=True)
+            return render_template('visualize_scheme.html', data_rand = data_rand, plot_url = [])
 
                     #send_from_directory(app.config['UPLOAD_FOLDER'], "the-global-city-brown.pdf", as_attachment=True), \
     else:
