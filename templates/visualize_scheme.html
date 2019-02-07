@@ -11,7 +11,7 @@
 						    padding-left: 80px;
 						}
 	</style>
-	<head>
+<!-- 	<head>
 
 		<link
 		    href="http://cdn.pydata.org/bokeh/release/bokeh-0.12.5.min.css"
@@ -23,19 +23,12 @@
 		<script src="http://cdn.pydata.org/bokeh/release/bokeh-0.12.5.min.js"></script>
 		<script src="http://cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.5.min.js"></script>
 
-	</head>
+	</head> -->
 	<body>
 
 	<h1>Visualize results</h1>
 	<a href="{{ url_for('df_download', filename='data_rand.xlxs') }} color: #ffffff">Download</a>
-<!-- 	{{df = (100*(pd.crosstab(data_rand['group-rct'], data_rand[strat_cols[i]], normalize='columns')))
-	 df = df.stack().reset_index().rename(columns={0:'Percentage'})}} -->
-	<br></br>
-	<div>
 
-	<img src="data:image/png;base64,{{plot_url}}">'
-
-	</div>
 
 	</body>
 
