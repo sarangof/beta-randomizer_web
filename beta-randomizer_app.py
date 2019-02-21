@@ -138,30 +138,15 @@ def visualize_scheme():
         #print(session['update'])
         data_rand = pd.DataFrame([])
         strat_cols = []
-        print("session['update']")
-        print(session['update'])
         if session['update']==True:
             sample_p = 50.
             data_rct = pd.DataFrame(ast.literal_eval(session['data_rct']))
-            print("data_rct['date']")
-            print(data_rct['date'])
             data_new = pd.DataFrame(ast.literal_eval(session['data_new']))
             filename1 = session['filename1']
             valid_update, message_update, pure_randomization_boolean, strat_columns = check_strat_file(data_rct, data_new, session['filename1'])
-            print("valid_update")
-            print(valid_update)
-            print("message_update")
-            print(message_update)
-            print("check validity")
-            print(valid_update==True)
             if valid_update:
                 data_rand, strat_cols = update_stratification(data_rct, data_new, session['filename1'], pure_randomization_boolean, strat_columns)
-                print("data_rand")
-                print(data_rand)
-                print("strat_cols")
-                print(strat_cols)
                 session['data_rand'] = data_rand.to_json()  
-                print("valid update")
             else:
                 flash(message_update)
                 #redirect(url_for('update_scheme'))
@@ -173,10 +158,21 @@ def visualize_scheme():
             strat_cols = []
             for cols in data_set.columns:
                 if request.form.get(cols) == '1':
-                    print(cols)
                     strat_cols.append(str(cols))
-                    print(strat_cols)
-            data_rand = stratify(data_set,strat_cols)
+
+            rand_type = request.form.get('randomization_type')
+            if rand_type == 'Simple':
+                data_rand = stratify(data_set, strat_cols,
+                                        pure_randomization_boolean=True, 
+                                        sample_p=int(request.form['sample_p']))
+
+            elif rand_type == 'Stratified':
+                data_rand = stratify(data_set, strat_cols,
+                                    pure_randomization_boolean=False, 
+                                    sample_p=int(request.form['sample_p']))
+
+            print(data_rand)
+
             print("stratifying succesfull")
             print(data_rand)
 

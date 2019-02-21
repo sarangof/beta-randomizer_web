@@ -22,26 +22,21 @@ def standardize_columns(data):
             data[cols] = data[cols].map(lambda x: x.replace('-', ''))
     return data
 
-def group_age(df):
-    for cols in df.columns:
-        if 'age' in cols:
-            age_copy = df[cols]
-            qtile = df[cols].astype('float').quantile([0.,0.25,0.5,0.75]).values.astype('float')
-            df['age'] = df[cols].astype('float')
-            df.loc[df['age'] > qtile[len(qtile)-1], 'age'] = '['+str(qtile[len(qtile)-1])+'-'+str(df['age'].max())+']'
-            for i in range(len(qtile)-1):
-                print("df['age']")
-                print(df['age'])
-                print("qtile[i]")
-                print(qtile[i])
-                print("qtile[i+1]")
-                print(qtile[i+1])
-                print("(df['age'] >= qtile[i]) & (df['age']<qtile[i+1])")
-                print((df['age'] >= qtile[i]) & (df['age']<qtile[i+1]))
-                df.loc[(df['age'] >= qtile[i]) & (df['age']<qtile[i+1]),'age'] = '['+str(qtile[i])+'-'+str(qtile[i+1])+')'
-    return df, age_copy, df.index
+def group_age(df,strat_cols):
+    numeric_df = df[strat_cols].select_dtypes(include=[np.number])
+    age_copy = []
+    age_index = []
+    if not numeric_df.empty:
+        print("non-empty numeric dataframe")
+        for cols in numeric_df.columns:
+            age_copy = age_copy.append(df[cols])
+            df[cols] = pd.qcut(df[cols].astype('float'),4).astype('str')
+            age_index = age_index.append(df.index)
+        return df, age_copy, age_index
+    else:
+        return df, [], []
 
-def stratify(data_set,strat_columns,pure_randomization_text='Pure randomization',pure_randomization_boolean=False,sample_p=50):
+def stratify(data_set,strat_columns,pure_randomization_boolean,sample_p, pure_randomization_text='Pure randomization'):
     """ 
     Stratified random sampling
     SPECIAL CASE, WHEN THERE IS ONLY ONE STRATUM PER INDIVIDUAL.
@@ -56,10 +51,14 @@ def stratify(data_set,strat_columns,pure_randomization_text='Pure randomization'
     data_set = data_set.apply(lambda x: x.astype(str).str.lower())
     n = np.ceil((sample_p/100.)*len(data_set))
 
-    if "age" in strat_columns:
-        data_set, age_copy, age_index = group_age(data_set)
+    print("data set WHY")
+    print(data_set)
 
-    if not pure_randomization_text:
+    numeric_strat_cols = ~data_set[selected_columns].select_dtypes(include=[np.number]).empty
+    if numeric_strat_cols:
+        data_set, age_copy, age_index = group_age(data_set,selected_columns)
+
+    if not pure_randomization_boolean:
         # - size of each group
         df = data_set.groupby(selected_columns).count().max(axis=1)
         #df = data_set.groupby(selected_columns).size() # Would this work?
@@ -69,7 +68,7 @@ def stratify(data_set,strat_columns,pure_randomization_text='Pure randomization'
         df['Size'] = np.ceil(n*(df[df.columns[-1]]/len(data_set)).values)
 
         # - Ensure that rounding of subgroups does not mess up total balance
-        rows_delete = range(0,len(df))
+        rows_delete = list(range(0,len(df)))
         random.shuffle(rows_delete)
 
         for rows in cycle(rows_delete):
@@ -97,8 +96,11 @@ def stratify(data_set,strat_columns,pure_randomization_text='Pure randomization'
     data_set['batch'] = int(1)
     #total_data['date'] = total_data['date'].dt.strftime('%M/%d/%Y')
 
-    if "age" in strat_columns:
-        data_set.loc[age_index,'age'] = age_copy 
+    if numeric_strat_cols:
+        print("age_copy")
+        print(age_copy)
+        for or_,col_ in enumerate(data_set[selected_columns].select_dtypes(include=[np.number]).columns):
+            data_set.loc[age_index[or_],col_] = age_copy[or_] 
     
     filename = 'test'
 
@@ -150,7 +152,10 @@ def update_stratification(data_set, data_new, filename1, pure_randomization_bool
 
     data_new['group-rct'] = ''
     data_temp = data_new.append(data_set.ix[:, :]) # there will be a problem with indexing, I can see it coming.
-    data_temp, age_copy, age_index = group_age(data_temp)
+
+    numeric_strat_cols = ~data_set[selected_columns].select_dtypes(include=[np.number]).empty
+    if numeric_strat_cols:
+        data_temp, age_copy, age_index = group_age(data_temp)
 
     #data_set = data_temp[data_temp.date != todaysdate] # seleccionar datos ya asignados
     data_set = data_temp[(data_temp['group-rct'].isin(['control','intervention']))] # seleccionar datos ya asignados
@@ -159,9 +164,7 @@ def update_stratification(data_set, data_new, filename1, pure_randomization_bool
     initial_n = data_set_copy['group-rct'].value_counts().loc[label] # size de los que se quedan bajitos
 
     if not pure_randomization_boolean:
-        selected_columns = strat_columns 
-        #print("columns")
-        #print(selected_columns)
+        selected_columns = strat_columns
         df = data_temp.groupby(selected_columns).size().reset_index() # Number of individuals in each group
 
         label_pre = pd.crosstab(data_set['group-rct'],[pd.Series(data_set[cols]) for cols in selected_columns]).loc[label].reset_index() 
@@ -176,7 +179,7 @@ def update_stratification(data_set, data_new, filename1, pure_randomization_bool
         df['Size'] = np.ceil(n*(df[df.columns[-1]]/len(data_temp)).values) # number of individuals in the selected intervention that would make up for a balanced contribution to the covariates
 
 
-        rows_delete = range(0,len(df))
+        rows_delete = list(range(0,len(df)))
         random.shuffle(rows_delete)
 
         previous_assignation = df['Size'].sum()
@@ -283,8 +286,11 @@ def update_stratification(data_set, data_new, filename1, pure_randomization_bool
     data_new['batch'] = int(np.max(data_set.batch.value_counts().index.astype('int').values)) + int(1)
 
     total_data = data_new.append(data_set)
-    total_data['age'] = age_copy
-    total_data['date'] = pd.to_datetime(total_data['date']).dt.date
+    if numeric_strat_cols:
+        print("age_copy")
+        print(age_copy)
+        for or_,col_ in enumerate(data_set[selected_columns].select_dtypes(include=[np.number]).columns):
+            data_set.loc[age_index[or_],col_] = age_copy[or_] 
 
     if not pure_randomization_boolean: 
         name = filename1.rsplit("|")[0]+"|"+",".join(strat_columns)+'_'+todaysdate+'_'+str(int(len(total_data)))+'_'+str(int(int(sample_p)))+'_RCT'+'.xlsx'
@@ -348,7 +354,7 @@ def check_strat_file(data_rct,data_new,filename1,pure_randomization_text = 'Pure
     if 'grouprct' in data_rct.columns:
         if set(data_rct.columns)-set(['grouprct','date','batch']) == set(data_new.columns):
             #CHANGE THIS
-            sample_p = 50.#float(filename1.rsplit("_")[-2])
+            sample_p = float(filename1.rsplit("_")[-2])
             try:
                 if len(filename1.rsplit("|")) <=1:
                     message_update = "Please check the naming structure of the mother file."
@@ -375,8 +381,6 @@ def check_strat_file(data_rct,data_new,filename1,pure_randomization_text = 'Pure
                     # Need to treat this as a special category.
                     message_update = '''There are new values {1} in {0}.'''.format(new_categories.keys(),new_categories.values())       
                     # OJO
-            
-
         else:
             available_columns = list(set(data_rct.columns.values) - set(['grouprct','date','batch']))
             message_update = "Files must have the same structure (columns). \n Previous column names: "+ str([x.encode('utf-8') for x in data_rct[available_columns].columns.values]) +"\n New column names: "+str([x.encode('utf-8') for x in data_new.columns.values])
