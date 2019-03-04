@@ -9,14 +9,12 @@ import base64
 import matplotlib.pyplot as plt
 #global data 
 
-
-
 from dateutil import parser
 
 data = pd.DataFrame([])
 
 UPLOAD_FOLDER = '.'
-ALLOWED_EXTENSIONS = set(['csv','xlsx','xlx'])
+ALLOWED_EXTENSIONS = set(['xlsx','xlx'])
 
 app = Flask(__name__)
 app.secret_key = "password"
@@ -137,62 +135,57 @@ def visualize_scheme():
         #print("session['update']")
         #print(session['update'])
         data_rand = pd.DataFrame([])
-        strat_cols = []
+        strat_columns = []
+        pure_randomization_boolean = False
+        sample_p = 50.
         if session['update']==True:
-            sample_p = 50.
+            session_update=True
             data_rct = pd.DataFrame(ast.literal_eval(session['data_rct']))
             data_new = pd.DataFrame(ast.literal_eval(session['data_new']))
             filename1 = session['filename1']
-            valid_update, message_update, pure_randomization_boolean, strat_columns = check_strat_file(data_rct, data_new, session['filename1'])
+            valid_update, message_update, pure_randomization_boolean, strat_columns, sample_p = check_strat_file(data_rct, data_new, session['filename1'])
             if valid_update:
-                data_rand, strat_cols = update_stratification(data_rct, data_new, session['filename1'], pure_randomization_boolean, strat_columns)
-                session['data_rand'] = data_rand.to_json()  
+                data_rand, strat_columns = update_stratification(data_rct, data_new, session['filename1'], pure_randomization_boolean, strat_columns)
+                session['data_rand'] = data_rand.to_json()
             else:
                 flash(message_update)
                 #redirect(url_for('update_scheme'))
         else:
+            session_update=False
             # THERE WILL BE AN ERROR HERE. GET with update vs get without an update.
             print("create statement")
-            sample_p = 50.
             data_set = pd.DataFrame(ast.literal_eval(session['data']))
-            strat_cols = []
+            strat_columns = []
+            sample_p = int(request.form['sample_p'])
             for cols in data_set.columns:
                 if request.form.get(cols) == '1':
-                    strat_cols.append(str(cols))
+                    strat_columns.append(str(cols))
 
             rand_type = request.form.get('randomization_type')
             if rand_type == 'Simple':
-                data_rand = stratify(data_set, strat_cols,
+                data_rand = stratify(data_set, strat_columns,
                                         pure_randomization_boolean=True, 
-                                        sample_p=int(request.form['sample_p']))
+                                        sample_p=sample_p)
 
             elif rand_type == 'Stratified':
-                data_rand = stratify(data_set, strat_cols,
+                data_rand = stratify(data_set, strat_columns,
                                     pure_randomization_boolean=False, 
-                                    sample_p=int(request.form['sample_p']))
-
-            print(data_rand)
-
-            print("stratifying succesfull")
-            print(data_rand)
+                                    sample_p=sample_p)
 
         if (not data_rand.empty):
             print("not data-rand empty")
             data_rand.to_excel("data_rand.xlsx")
             print("saved to excel")
-            #img = create_plots(data_rand,strat_cols)      
-            #print("plots created")
-            #plt.savefig(img, format='png')
-            #print("image created")
-            #img.seek(0)
-            #plot_url = base64.b64encode(img.getvalue()).decode()
-            #return '<img src="data:image/png;base64,{}">'.format(plot_url)
-            #return render_template('visualize_scheme.html', data_rand = data_rand)
+            print("strat_columns")
+            print(strat_columns)
+            print("pure_randomization_boolean")
+            print(pure_randomization_boolean)
+            viz_list = create_plots(data_rand,strat_columns,pure_randomization_boolean,sample_p,session_update)
             print("data_rand")
             print(data_rand)
             
             #return render_template('visualize_scheme.html', data_rand = data_rand, plot_url = plot_url)#send_file(app.config['UPLOAD_FOLDER']+"/the-global-city-brown.pdf", as_attachment=True)
-            return render_template('visualize_scheme.html', data_rand = data_rand, plot_url = [])
+            return render_template('visualize_scheme.html', viz_list=viz_list)
 
                     #send_from_directory(app.config['UPLOAD_FOLDER'], "the-global-city-brown.pdf", as_attachment=True), \
     else:
@@ -202,6 +195,7 @@ def visualize_scheme():
 def df_download(filename):
     return send_file(app.config['UPLOAD_FOLDER']+"/data_rand.xlsx", as_attachment=True)
     #return send_from_directory(app.config['UPLOAD_FOLDER'], filename, as_attachment=True)
+
 
 if __name__ == '__main__':
     app.debug = True

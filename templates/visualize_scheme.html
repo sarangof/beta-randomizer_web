@@ -13,22 +13,26 @@
 	</style>
  	<head>
 
-		<link
-		    href="http://cdn.pydata.org/bokeh/release/bokeh-0.12.5.min.css"
-		    rel="stylesheet" type="text/css">
-		<link
-		    href="http://cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.5.min.css"
-		    rel="stylesheet" type="text/css">
+		<link rel="stylesheet" href="https://cdn.pydata.org/bokeh/release/bokeh-1.0.4.min.css" type="text/css" />
+		<link rel="stylesheet" href="https://cdn.pydata.org/bokeh/release/bokeh-widgets-1.0.4.min.css" type="text/css" />
+		<link rel="stylesheet" href="https://cdn.pydata.org/bokeh/release/bokeh-tables-1.0.4.min.css" type="text/css">
 
-		<script src="http://cdn.pydata.org/bokeh/release/bokeh-0.12.5.min.js"></script>
-		<script src="http://cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.5.min.js"></script>
+		<script type="text/javascript" src="https://cdn.pydata.org/bokeh/release/bokeh-1.0.4.min.js"></script>
+		<script type="text/javascript" src="https://cdn.pydata.org/bokeh/release/bokeh-api-1.0.4.min.js"></script>
+		<script type="text/javascript" src="https://cdn.pydata.org/bokeh/release/bokeh-widgets-1.0.4.min.js"></script>
+		<script type="text/javascript" src="https://cdn.pydata.org/bokeh/release/bokeh-tables-1.0.4.min.js"></script>
 
 	</head>
 	<body>
 
 	<h1>Visualize results</h1>
-	<a href="{{ url_for('df_download', filename='data_rand.xlxs') }} color: #ffffff">Download</a>
+	{% for script, div in viz_list %}
+			{{ script|safe}}
+			{{ div|safe }}
+			<br></br>
+	{% endfor %}
 
+	<a href="{{ url_for('df_download', filename='data_rand.xlxs') }} color: #ffffff">Download</a>
 
 	</body>
 

@@ -11,6 +11,10 @@ body 			{
 				    padding-bottom: 50px;
 				    padding-left: 80px;
 				}
+#desired_actions {
+					padding-left: 100px;
+					color: #ffffff 
+				}
 </style>
 </head>
 <body>	
@@ -19,7 +23,7 @@ body 			{
 <h3>What would you like to do?</h3>
 
 <form action="{{ url_for('choose_rand_option')}}" method = 'post'>
-<div>
+<div id='desired_actions'>
 
 <input type="radio" name="desired_action" value="create"> Create new random assignment scheme<br>
 <input type="radio" name="desired_action" value="update"> Update scheme<br>

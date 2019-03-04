@@ -7,6 +7,12 @@ import io
 from dateutil import parser
 import seaborn as sns
 import matplotlib.pyplot as plt
+from bokeh.io import show, output_file
+from bokeh.plotting import figure
+from bokeh.embed import components
+from bokeh.models import ColumnDataSource, FactorRange
+from bokeh.transform import factor_cmap
+
 
 sns.set_style("whitegrid")
 
@@ -22,8 +28,8 @@ def standardize_columns(data):
             data[cols] = data[cols].map(lambda x: x.replace('-', ''))
     return data
 
-def group_age(df,strat_cols):
-    numeric_df = df[strat_cols].select_dtypes(include=[np.number])
+def group_age(df,strat_columns):
+    numeric_df = df[strat_columns].select_dtypes(include=[np.number])
     age_copy = []
     age_index = []
     if not numeric_df.empty:
@@ -46,7 +52,6 @@ def stratify(data_set,strat_columns,pure_randomization_boolean,sample_p, pure_ra
     print("Stratify function")
     print("data_set")
     print( data_set)
-    selected_columns = strat_columns
     data_set.dropna(axis=1,inplace=True)#,how='all')
     data_set = data_set.apply(lambda x: x.astype(str).str.lower())
     n = np.ceil((sample_p/100.)*len(data_set))
@@ -54,14 +59,14 @@ def stratify(data_set,strat_columns,pure_randomization_boolean,sample_p, pure_ra
     print("data set WHY")
     print(data_set)
 
-    numeric_strat_cols = ~data_set[selected_columns].select_dtypes(include=[np.number]).empty
-    if numeric_strat_cols:
-        data_set, age_copy, age_index = group_age(data_set,selected_columns)
+    numeric_strat_columns = ~data_set[strat_columns].select_dtypes(include=[np.number]).empty
+    if numeric_strat_columns:
+        data_set, age_copy, age_index = group_age(data_set,strat_columns)
 
     if not pure_randomization_boolean:
         # - size of each group
-        df = data_set.groupby(selected_columns).count().max(axis=1)
-        #df = data_set.groupby(selected_columns).size() # Would this work?
+        df = data_set.groupby(strat_columns).count().max(axis=1)
+        #df = data_set.groupby(strat_columns).size() # Would this work?
         df = df.reset_index() # Create exception here
 
         # - How to ensure sample size when rounding like this.
@@ -96,15 +101,15 @@ def stratify(data_set,strat_columns,pure_randomization_boolean,sample_p, pure_ra
     data_set['batch'] = int(1)
     #total_data['date'] = total_data['date'].dt.strftime('%M/%d/%Y')
 
-    if numeric_strat_cols:
+    if numeric_strat_columns:
         print("age_copy")
         print(age_copy)
-        for or_,col_ in enumerate(data_set[selected_columns].select_dtypes(include=[np.number]).columns):
+        for or_,col_ in enumerate(data_set[strat_columns].select_dtypes(include=[np.number]).columns):
             data_set.loc[age_index[or_],col_] = age_copy[or_] 
     
     filename = 'test'
 
-    name = filename.rsplit(".")[0]+"|"+",".join(selected_columns)+'_'+str(todaysdate)+'_'+str(int(len(data_set)))+'_'+str(int(100-sample_p))+'_RCT'+'.xlsx'
+    name = filename.rsplit(".")[0]+"|"+",".join(strat_columns)+'_'+str(todaysdate)+'_'+str(int(len(data_set)))+'_'+str(int(100-sample_p))+'_RCT'+'.xlsx'
     data_set.to_excel(name, na_rep='',index=False)
 
     return data_set
@@ -153,9 +158,9 @@ def update_stratification(data_set, data_new, filename1, pure_randomization_bool
     data_new['group-rct'] = ''
     data_temp = data_new.append(data_set.ix[:, :]) # there will be a problem with indexing, I can see it coming.
 
-    numeric_strat_cols = ~data_set[selected_columns].select_dtypes(include=[np.number]).empty
-    if numeric_strat_cols:
-        data_temp, age_copy, age_index = group_age(data_temp)
+    numeric_strat_columns = ~data_set[strat_columns].select_dtypes(include=[np.number]).empty
+    if numeric_strat_columns:
+        data_temp, age_copy, age_index = group_age(data_temp,strat_columns)
 
     #data_set = data_temp[data_temp.date != todaysdate] # seleccionar datos ya asignados
     data_set = data_temp[(data_temp['group-rct'].isin(['control','intervention']))] # seleccionar datos ya asignados
@@ -164,10 +169,9 @@ def update_stratification(data_set, data_new, filename1, pure_randomization_bool
     initial_n = data_set_copy['group-rct'].value_counts().loc[label] # size de los que se quedan bajitos
 
     if not pure_randomization_boolean:
-        selected_columns = strat_columns
-        df = data_temp.groupby(selected_columns).size().reset_index() # Number of individuals in each group
+        df = data_temp.groupby(strat_columns).size().reset_index() # Number of individuals in each group
 
-        label_pre = pd.crosstab(data_set['group-rct'],[pd.Series(data_set[cols]) for cols in selected_columns]).loc[label].reset_index() 
+        label_pre = pd.crosstab(data_set['group-rct'],[pd.Series(data_set[cols]) for cols in strat_columns]).loc[label].reset_index() 
 
         # desired size
         if label == 'control':
@@ -286,10 +290,10 @@ def update_stratification(data_set, data_new, filename1, pure_randomization_bool
     data_new['batch'] = int(np.max(data_set.batch.value_counts().index.astype('int').values)) + int(1)
 
     total_data = data_new.append(data_set)
-    if numeric_strat_cols:
+    if numeric_strat_columns:
         print("age_copy")
         print(age_copy)
-        for or_,col_ in enumerate(data_set[selected_columns].select_dtypes(include=[np.number]).columns):
+        for or_,col_ in enumerate(data_set[strat_columns].select_dtypes(include=[np.number]).columns):
             data_set.loc[age_index[or_],col_] = age_copy[or_] 
 
     if not pure_randomization_boolean: 
@@ -316,7 +320,7 @@ def update_stratification(data_set, data_new, filename1, pure_randomization_bool
 
     return data_set, strat_columns
 
-def check_strat_file(data_rct,data_new,filename1,pure_randomization_text = 'Pure randomization'):
+def check_strat_file(data_rct, data_new, filename1, pure_randomization_text = 'Pure randomization'):
 
     valid_update = False
     pure_randomization_boolean = False
@@ -351,10 +355,11 @@ def check_strat_file(data_rct,data_new,filename1,pure_randomization_text = 'Pure
     data_new.columns = map(str.lower, data_new.columns)
     data_new.columns = data_new.columns.str.replace(' ','')
 
+    sample_p = float(filename1.rsplit("_")[-2])
+
     if 'grouprct' in data_rct.columns:
         if set(data_rct.columns)-set(['grouprct','date','batch']) == set(data_new.columns):
             #CHANGE THIS
-            sample_p = float(filename1.rsplit("_")[-2])
             try:
                 if len(filename1.rsplit("|")) <=1:
                     message_update = "Please check the naming structure of the mother file."
@@ -389,52 +394,72 @@ def check_strat_file(data_rct,data_new,filename1,pure_randomization_text = 'Pure
         message_update = "File should have been generated by this own program and thus have a Group-RCT column."          
         #"The file should have been generated by this own program and thus have a Group-RCT column."
     #pass
-    return valid_update, message_update, pure_randomization_boolean, strat_columns
+    return valid_update, message_update, pure_randomization_boolean, strat_columns, sample_p
 
 def warning_new_words(new_categories):
     pass
     # Implement this warning, somehow.
 
-def create_plots(data_rand,strat_cols,sample_p=50):
-    img = io.BytesIO()
-    new_legends = 0
-    fig, axes = plt.subplots(len(strat_cols),1,figsize=(10,5)) 
-    for i in range(len(strat_cols)):
+def create_plots(data_rand, strat_columns, pure_randomization_boolean, sample_p,session_update):
+    viz_list = []
+    for i in range(len(strat_columns)):
+        print(strat_columns[i])
+        print(data_rand[strat_columns[i]])
+        print(data_rand[strat_columns[i]].dtype)
         try:
-            ax_curr = axes[i]
-        except TypeError:
-            ax_curr = axes
-        if strat_cols[i]!='age':
+            data_rand[strat_columns[i]] = pd.to_numeric(data_rand[strat_columns[i]])        
+            print("SOMETHING NUMERIC")
+            # fruits = ['Apples', 'Pears', 'Nectarines', 'Plums', 'Grapes', 'Strawberries']
+            # counts = [5, 3, 4, 2, 4, 6]
+            # p = figure(x_range=fruits, 
+            #             plot_height=250, 
+            #             title="Fruit Counts",
+            #             toolbar_location=None, 
+            #             tools="")
+            # p.vbar(x=fruits, top=counts, width=0.9)number):
 
-            df = (100*(pd.crosstab(data_rand['group-rct'], data_rand[strat_cols[i]], normalize='columns')))
-            df = df.stack().reset_index().rename(columns={0:'Percentage'}) 
+            df = data_rand.groupby('group-rct').agg(['mean','std'])[strat_columns[i]]
+            print(df)
+            #(100*(pd.crosstab(data_rand['group-rct'], data_rand[strat_columns[i]], normalize='columns')))
+            #df = df.stack().reset_index().rename(columns={0:'Percentage'}) 
+            p = figure(x_range=list(pd.unique(df.index)), 
+                        plot_height=250, 
+                        title=strat_columns[i],
+                        toolbar_location=None, 
+                        tools="")
+            p.vbar(x=list(df.index.values), 
+                top=list(df['mean'].values), 
+                width=0.9, fill_color="#c9d9d3")
 
-            bpt = sns.barplot(hue=df['group-rct'], y=df['Percentage'], x=df[strat_cols[i]], ax=ax_curr)
-            bpt.set_ylabel('Percentage',fontsize='18');
-            bpt.axhline(y=100.-sample_p, c="darkred", linewidth=2, zorder=3)
-            handles, labels = bpt.get_legend_handles_labels();
-            if new_legends < 1:
-                lgd_a = bpt.legend(handles,labels, loc='upper left', bbox_to_anchor=(1, 0.5), fontsize=14)
-            else:
-                lgd = bpt.legend([],[], loc='upper left', bbox_to_anchor=(1, 0.5), fontsize=14)
-
-            bpt.xaxis.label.set_size(18);
-            plt.ylim([0,100]);
-            new_legends += 1
-        """
-        else:
-            print("strat_cols[i]")
-            print(strat_cols[i])
-            print("data_rand")
+        except ValueError:
+            print("NOT NUMERIC")
             print(data_rand)
-            ax_bp = sns.boxplot(x='group-rct', 
-                                y = strat_cols[i],
-                                data = data_rand,
-                                ax=ax_curr)
-            plt.ylim([data_rand[strat_cols[i]].astype('float').min(), data_rand[strat_cols[i]].astype('float').max()+1])
-            lgd = ax_bp.legend([],[], loc='upper left', bbox_to_anchor=(1, 0.5), fontsize=14)
-            ax_bp.set_xlabel('');
-            ax_bp.xaxis.label.set_size(18);
-            ax_bp.yaxis.label.set_size(18);
-        """
-    return img
+            df = (100*(pd.crosstab(data_rand['group-rct'], data_rand[strat_columns[i]], normalize='columns')))#.set_index([])
+            # df = df.stack().reset_index().rename(columns={0:'Percentage'}) 
+            # print(df)
+            palette = ["#c9d9d3", "#718dbf", "#e84d60"]
+            # p = figure(x_range=list(df.index.values), 
+            #             plot_height=250, 
+            #             title=strat_columns[i],
+            #             toolbar_location=None, 
+            #             tools="")
+            # p.vbar(x=list(df.index.values), 
+            #     top=list(df['Percentage'].values), 
+            #     width=0.9)
+            print(df)
+            x = [ (col, group) for col in df.columns for group in df.index.values]
+            print(x)
+            pcts_ = list(df.stack().values) # like an hstack
+
+            source = ColumnDataSource(data=dict(x=x, counts=pcts_))
+
+            p = figure(x_range=FactorRange(*x), plot_height=350, title=strat_columns[i],
+                       toolbar_location=None, tools="")
+
+            p.vbar(x='x', top='counts', width=0.9, source=source, line_color="white",
+                fill_color=factor_cmap('x', palette=palette, factors=list(df.index.values), start=1, end=2))
+        script, div = components(p)
+        viz_list.append((script,div))
+    return viz_list
+
+
