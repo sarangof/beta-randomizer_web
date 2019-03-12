@@ -89,7 +89,7 @@ def update_scheme():
         session['update'] = True
         if (('file_new' not in request.files) or ('file_RCT' not in request.files)):
             flash('No file part')
-            print('No file part')
+            #print('No file part')
             return redirect(request.url)
         file_new = request.files['file_new']
         file_RCT= request.files['file_RCT']
@@ -97,7 +97,6 @@ def update_scheme():
         # submit an empty part without filename
         if file_new.filename == '' or file_RCT.filename == '':
             flash('No selected file')
-            print('No selected file')
             return redirect(request.url)
 
         if file_new and file_RCT and allowed_file(file_new.filename) and allowed_file(file_RCT.filename):
@@ -122,10 +121,8 @@ def update_scheme():
 
     else:
         print("GETUPDATESCHEME")
-        print("session['update']")
-        print(session['update'])
         #session['data'] = False
-        #session['update'] = False
+        session['update'] = False
 
         return render_template('update_scheme.html')
 
@@ -156,7 +153,7 @@ def visualize_scheme():
             print("create statement")
             data_set = pd.DataFrame(ast.literal_eval(session['data']))
             strat_columns = []
-            sample_p = int(request.form['sample_p'])
+            sample_p = int(request.form.get('sample_p'))#int(request.form['sample_p'])
             for cols in data_set.columns:
                 if request.form.get(cols) == '1':
                     strat_columns.append(str(cols))
@@ -173,16 +170,8 @@ def visualize_scheme():
                                     sample_p=sample_p)
 
         if (not data_rand.empty):
-            print("not data-rand empty")
             data_rand.to_excel("data_rand.xlsx")
-            print("saved to excel")
-            print("strat_columns")
-            print(strat_columns)
-            print("pure_randomization_boolean")
-            print(pure_randomization_boolean)
             viz_list = create_plots(data_rand,strat_columns,pure_randomization_boolean,sample_p,session_update)
-            print("data_rand")
-            print(data_rand)
             
             #return render_template('visualize_scheme.html', data_rand = data_rand, plot_url = plot_url)#send_file(app.config['UPLOAD_FOLDER']+"/the-global-city-brown.pdf", as_attachment=True)
             return render_template('visualize_scheme.html', viz_list=viz_list)

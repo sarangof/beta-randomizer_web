@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 from bokeh.io import show, output_file
 from bokeh.plotting import figure
 from bokeh.embed import components
-from bokeh.models import ColumnDataSource, FactorRange
+from bokeh.models import ColumnDataSource, FactorRange, Span
 from bokeh.transform import factor_cmap
 
 
@@ -21,7 +21,9 @@ def standardize_columns(data):
     data.columns = [''.join(str.lower(e) for e in string if e.isalnum()) for string in data.columns] # replace all special characters in columns.
     df_str_columns = data.select_dtypes(exclude=[np.datetime64,np.number])
     for cols in df_str_columns.columns:
-        data[cols] = data[cols].str.strip()
+        print(cols)
+        print(df_str_columns[cols])
+        data[cols] = df_str_columns[cols].str.strip()#data[cols].str.strip()
         try:
             data[cols] = data[cols].map(lambda x: str(x).replace('-', ''))
         except UnicodeEncodeError:
@@ -51,13 +53,13 @@ def stratify(data_set,strat_columns,pure_randomization_boolean,sample_p, pure_ra
     """
     print("Stratify function")
     print("data_set")
-    print( data_set)
+    #print( data_set)
     data_set.dropna(axis=1,inplace=True)#,how='all')
     data_set = data_set.apply(lambda x: x.astype(str).str.lower())
     n = np.ceil((sample_p/100.)*len(data_set))
 
     print("data set WHY")
-    print(data_set)
+    #print(data_set)
 
     numeric_strat_columns = ~data_set[strat_columns].select_dtypes(include=[np.number]).empty
     if numeric_strat_columns:
@@ -198,7 +200,7 @@ def update_stratification(data_set, data_new, filename1, pure_randomization_bool
                 #print("Entramos al ciclo")
                 if df.loc[rows,'Size'] > 0:
                     #((1/p)*df['Size'].sum())-n:
-                    print(deleted_ns)
+                    #print(deleted_ns)
                     if deleted_ns >= (previous_assignation - n):#- (n - initial_n)): #n - initial_n - df['Size'].sum() :
                         print("Rompimos")
                         break
@@ -206,8 +208,8 @@ def update_stratification(data_set, data_new, filename1, pure_randomization_bool
                         df.loc[rows,'Size'] -= 1
                         deleted_ns += 1
                         print("lo que falta "+str(n - df['Size'].sum())) #- initial_n 
-                        print(deleted_ns)   
-                        print(df)
+                        #print(deleted_ns)   
+                        #print(df)
         elif (n) > df['Size'].sum(): #- initial_n
             added_ns = 0 
             for rows in cycle(rows_delete):
@@ -238,7 +240,7 @@ def update_stratification(data_set, data_new, filename1, pure_randomization_bool
                 sz = len(df_tmp)
                 ss = min([sz, df['Missing'].loc[index], diff]) # What I have vs. what I am missing, only god knows why diff is here.
                 if ss > 0:
-                    print(ss)
+                    #print(ss)
                     ind_list = np.append(ind_list, df_tmp.sample(n=int(ss)).index.values)
                     assigned += ss
                 else:
@@ -267,9 +269,9 @@ def update_stratification(data_set, data_new, filename1, pure_randomization_bool
         ind_list = data_new.sample(int(n)-int(data_set['group-rct'].value_counts().loc[label])).index.values
 
     print("data_new")
-    print(data_new)
+    #print(data_new)
     print("ind_list")
-    print(ind_list)
+    #print(ind_list)
     if label == 'control':
         data_new.loc[ind_list,'group-rct'] = "control"
         data_new.loc[set(data_new.index.values ) - set(ind_list),'group-rct'] = "intervention"
@@ -278,10 +280,10 @@ def update_stratification(data_set, data_new, filename1, pure_randomization_bool
                 print("malo")
                 print(x)
     else:
-        print("data_new.index")
-        print(data_new.index)
-        print("data_new.loc[ind_list]")
-        print(data_new.loc[ind_list])
+        #print("data_new.index")
+        #print(data_new.index)
+        #print("data_new.loc[ind_list]")
+        #print(data_new.loc[ind_list])
         data_new.loc[ind_list,'group-rct'] = "intervention"
         data_new.loc[set(data_new.index.values ) - set(ind_list),'group-rct'] = "control"
 
@@ -422,6 +424,7 @@ def create_plots(data_rand, strat_columns, pure_randomization_boolean, sample_p,
             print(df)
             #(100*(pd.crosstab(data_rand['group-rct'], data_rand[strat_columns[i]], normalize='columns')))
             #df = df.stack().reset_index().rename(columns={0:'Percentage'}) 
+            colors = ["#c9d9d3", "#718dbf"]
             p = figure(x_range=list(pd.unique(df.index)), 
                         plot_height=250, 
                         title=strat_columns[i],
@@ -429,14 +432,14 @@ def create_plots(data_rand, strat_columns, pure_randomization_boolean, sample_p,
                         tools="")
             p.vbar(x=list(df.index.values), 
                 top=list(df['mean'].values), 
-                width=0.9, fill_color="#c9d9d3")
+                width=0.9, color=["#c9d9d3", "#718dbf"])
 
         except ValueError:
             print("NOT NUMERIC")
-            print(data_rand)
+            #print(data_rand)
             df = (100*(pd.crosstab(data_rand['group-rct'], data_rand[strat_columns[i]], normalize='columns')))#.set_index([])
             # df = df.stack().reset_index().rename(columns={0:'Percentage'}) 
-            # print(df)
+            print(df)
             palette = ["#c9d9d3", "#718dbf", "#e84d60"]
             # p = figure(x_range=list(df.index.values), 
             #             plot_height=250, 
@@ -446,18 +449,28 @@ def create_plots(data_rand, strat_columns, pure_randomization_boolean, sample_p,
             # p.vbar(x=list(df.index.values), 
             #     top=list(df['Percentage'].values), 
             #     width=0.9)
-            print(df)
             x = [ (col, group) for col in df.columns for group in df.index.values]
             print(x)
-            pcts_ = list(df.stack().values) # like an hstack
-
+            pcts_ = list(df.transpose().stack().values) # like an hstack
+            print(pcts_)
             source = ColumnDataSource(data=dict(x=x, counts=pcts_))
 
+            TOOLTIPS = [
+                ('Percentage', '$pcts_'),
+                ('Goal for control group', '$sample_p')
+            ]
+
             p = figure(x_range=FactorRange(*x), plot_height=350, title=strat_columns[i],
-                       toolbar_location=None, tools="")
+                       toolbar_location=None, tools='hover',tooltips=TOOLTIPS)
 
             p.vbar(x='x', top='counts', width=0.9, source=source, line_color="white",
                 fill_color=factor_cmap('x', palette=palette, factors=list(df.index.values), start=1, end=2))
+
+            sample_p_ref = Span(location=sample_p, dimension='width', 
+                line_color='red', line_dash='dashed', line_width=3)
+
+            p.add_layout(sample_p_ref)
+
         script, div = components(p)
         viz_list.append((script,div))
     return viz_list
