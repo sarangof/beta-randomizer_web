@@ -13,6 +13,8 @@ from dateutil import parser
 
 data = pd.DataFrame([])
 
+
+
 UPLOAD_FOLDER = '.'
 ALLOWED_EXTENSIONS = set(['xlsx','xlx'])
 
@@ -27,6 +29,7 @@ def allowed_file(filename):
 
 @app.route('/', methods=['GET', 'POST'])
 def choose_rand_option():
+    session.clear()
     session['data'] = pd.DataFrame([]).to_json()
     if request.method == 'POST':# NEED TO TURN THESE INTO POST REQUESTS INSTEAD OF REDIRECTS.
         if request.form['desired_action'] == 'create':
