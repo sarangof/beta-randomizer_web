@@ -41,7 +41,7 @@ def choose_rand_option():
         if request.form['desired_action'] == 'update':
             return redirect(url_for('update_scheme'))
     if request.method == 'GET':
-        return render_template('welcome.html', HTML_HEAD=HTML_HEAD)
+        return render_template('welcome.html', head=HTML_HEAD)
 
 @app.route('/create_scheme', methods=['GET', 'POST'])
 def create_scheme():
@@ -73,7 +73,8 @@ def create_scheme():
 
     else:
         #session['data'] = None
-        return render_template('create_scheme.html')#redirect(request.url)#render_template('create_scheme.html',code=302)
+        # redirect(request.url)#render_template('create_scheme.html',code=302)
+        return render_template('create_scheme.html', head=HTML_HEAD)
 
 
 @app.route('/randomization_options',methods=['GET','POST'])
