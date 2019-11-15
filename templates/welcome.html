@@ -1,40 +1,58 @@
 <html>
+
 <head>
-<style>
-body            { font-family: sans-serif; background: #2F3C72; }
-/*a, h1, h2       { color: #ffffff ; font-family: 'Roboto'}*/
-h1, h2, h3      { font-family: 'Roboto', margin: 1;  color: #ffffff }
-input.radio     { font-family: 'Roboto', margin: 1;  color: #ffffff }
-body 			{
-				    padding-top: 50px;
-				    padding-right: 30px;
-				    padding-bottom: 50px;
-				    padding-left: 80px;
-				}
-#desired_actions {
-					padding-left: 100px;
-					color: #ffffff 
-				}
-</style>
+	{{HTML_HEAD|safe}}
+	<style>
+		body {
+			font-family: sans-serif;
+			background: #2F3C72;
+		}
+
+		/*a, h1, h2       { color: #ffffff ; font-family: 'Roboto'}*/
+		h1,
+		h2,
+		h3 {
+			font-family: 'Roboto', margin: 1;
+			color: #ffffff
+		}
+
+		input.radio {
+			font-family: 'Roboto', margin: 1;
+			color: #ffffff
+		}
+
+		body {
+			padding-top: 50px;
+			padding-right: 30px;
+			padding-bottom: 50px;
+			padding-left: 80px;
+		}
+
+		#desired_actions {
+			padding-left: 100px;
+			color: #ffffff
+		}
+	</style>
 </head>
-<body>	
 
-<h1>Welcome to the randomizer!</h1>	
-<h3>What would you like to do?</h3>
+<body>
 
-<form action="{{ url_for('choose_rand_option')}}" method = 'post'>
-<div id='desired_actions'>
+	<h1>Welcome to the randomizer!</h1>
+	<h3>What would you like to do?</h3>
 
-<input type="radio" name="desired_action" value="create"> Create new random assignment scheme<br>
-<input type="radio" name="desired_action" value="update"> Update scheme<br>
-<br></br>
+	<form action="{{ url_for('choose_rand_option')}}" method='post'>
+		<div id='desired_actions'>
 
-<input type='submit', value = 'Submit'>
+			<input type="radio" name="desired_action" value="create"> Create new random assignment scheme<br>
+			<input type="radio" name="desired_action" value="update"> Update scheme<br>
+			<br></br>
 
-</form>
+			<input type='submit' , value='Submit'>
 
-<br></br>
-</div>
+	</form>
+
+	<br></br>
+	</div>
 
 </body>
 
