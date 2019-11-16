@@ -1,3 +1,4 @@
+/*
 body            { font-family: sans-serif; background: #eee; }
 a, h1, h2       { color: #377ba8; }
 h1, h2          { font-family: 'Georgia', serif; margin: 0; }
@@ -16,3 +17,42 @@ h2              { font-size: 1.2em; }
 .flash          { background: #cee5F5; padding: 0.5em;
                   border: 1px solid #aacbe2; }
 .error          { background: #f0d6d6; padding: 0.5em; }
+*/
+
+body {
+    font-family: sans-serif;
+    background: #2F3C72;
+    color: white;
+}
+
+.jumbotron {
+    background: #2F3C72;
+}
+
+.breadcrumb {
+    background: #283365;
+}
+
+.breadcrumb li {
+    color: white !important;
+}
+
+.custom-file-input,
+.custom-file-label {
+    width: 25%;
+}
+
+input[type=radio] {
+    color: #ffffff;
+    padding-left: 100px;
+}
+
+#reveal-if-active {
+    color: #ffffff;
+    padding-left: 120px;
+}
+
+#radio_set {
+    color: #ffffff;
+    padding-left: 120px;
+}
