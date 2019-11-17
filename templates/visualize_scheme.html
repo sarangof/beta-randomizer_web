@@ -19,8 +19,12 @@
 		<nav aria-label="breadcrumb">
 			<ol class="breadcrumb">
 				<li class="breadcrumb-item"><a href="/">Home</a></li>
-				<li class="breadcrumb-item"><a href="/create_scheme">Create scheme</a></li>
+				<li class="breadcrumb-item"><a
+						href="/{{'update' if ('update' in referer) else 'create'}}_scheme">{{'Update ' if ('update' in referer) else 'Create '}}scheme</a>
+				</li>
+				{% if 'create' in referer %}
 				<li class="breadcrumb-item"><a href="/randomization_options">Randomization options</a></li>
+				{% endif %}
 				<li class="breadcrumb-item active" aria-current="page">Visualize scheme</li>
 			</ol>
 		</nav>
@@ -33,7 +37,7 @@
 			<br></br>
 			{% endfor %}
 
-			<a class="btn btn-primary" href="{{ url_for('df_download', filename='data_rand.xlxs') }}">Download</a>
+			<a class="btn btn-primary" href="{{ url_for('df_download', filename='data_rand.xlsx') }}">Download</a>
 		</div>
 	</div>
 </body>

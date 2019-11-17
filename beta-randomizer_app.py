@@ -100,7 +100,7 @@ def update_scheme():
             #print('No file part')
             return redirect(request.url)
         file_new = request.files['file_new']
-        file_RCT= request.files['file_RCT']
+        file_RCT = request.files['file_RCT']
         # if user does not select file, browser also
         # submit an empty part without filename
         if file_new.filename == '' or file_RCT.filename == '':
@@ -125,7 +125,7 @@ def update_scheme():
             session['data_new'] = pd.read_excel(file_all_new).to_json()
             session['filename1'] = str(file_RCT.filename)
 
-            return redirect(url_for('visualize_scheme'),code=307)
+            return redirect(url_for('visualize_scheme')+'?update',code=307)
 
     else:
         print("GETUPDATESCHEME")
@@ -182,7 +182,7 @@ def visualize_scheme():
             viz_list = create_plots(data_rand,strat_columns,pure_randomization_boolean,sample_p,session_update)
             
             #return render_template('visualize_scheme.html', data_rand = data_rand, plot_url = plot_url)#send_file(app.config['UPLOAD_FOLDER']+"/the-global-city-brown.pdf", as_attachment=True)
-            return render_template('visualize_scheme.html', viz_list=viz_list, head=HTML_HEAD)
+            return render_template('visualize_scheme.html', viz_list=viz_list, head=HTML_HEAD, referer=request.headers.get("Referer"))
 
                     #send_from_directory(app.config['UPLOAD_FOLDER'], "the-global-city-brown.pdf", as_attachment=True), \
     else:
