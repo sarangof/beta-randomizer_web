@@ -1,36 +1,36 @@
 <html>
-<style>
-body            { font-family: sans-serif; background: #2F3C72; }
-/*a, h1, h2       { color: #ffffff ; font-family: 'Roboto'}*/
-h1, h2, h3      { font-family: 'Roboto', margin: 1;  color: #ffffff }
-div 			{ font-family: 'Roboto', margin: 1;  color: #ffffff }
-body 			{
-				    padding-top: 50px;
-				    padding-right: 30px;
-				    padding-bottom: 50px;
-				    padding-left: 80px;
-				}
-</style>
+
+<head>
+  {{head|safe}}
+</head>
+
 <body>
-
-<h1>Create new scheme</h1>
-<h3>Please input file</h3>
-
-<div >
-
-AWESOME. LET'S UPDATE SOME SCHEMES.
-
-</div>
-<br>
-</br>
-<form  method=post action="{{url_for('update_scheme')}}" enctype=multipart/form-data>
-  <input type=file name=file_RCT>
-  <br>
-  </br>
-  <input type=file name=file_new>
-  <input type=submit value=Upload>
-</form>
-
+  <div class="container">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">Home</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Update scheme</li>
+      </ol>
+    </nav>
+    <div class="jumbotron">
+      <h1 class="display-4">Create new scheme</h1>
+      <p class="lead">Let's update some schemes!</p>
+      <hr class="my-4">
+      <p>Please input files</p>
+      <hr style="visibility: hidden;">
+      <form method="POST" action="{{url_for('update_scheme')}}" enctype="multipart/form-data">
+        <div class="custom-file">
+          <input type="file" id="customFile_RCT" name="file_RCT">
+        </div>
+        <hr style="visibility: hidden;">
+        <div class="custom-file">
+          <input type="file" id="customFile_new" name="file_new">
+        </div>
+        <hr style="visibility: hidden;">
+        <button class="btn btn-primary" type="submit">Upload</button>
+      </form>
+    </div>
+  </div>
 </body>
 
 </html>

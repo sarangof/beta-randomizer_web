@@ -132,7 +132,7 @@ def update_scheme():
         #session['data'] = False
         session['update'] = False
 
-        return render_template('update_scheme.html')
+        return render_template('update_scheme.html', head=HTML_HEAD)
 
 @app.route('/visualize_scheme', methods=['GET','POST'])
 def visualize_scheme():
