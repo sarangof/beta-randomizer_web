@@ -183,7 +183,7 @@ def visualize_scheme():
             viz_list = create_plots(data_rand,strat_columns,pure_randomization_boolean,sample_p,session_update)
             
             #return render_template('visualize_scheme.html', data_rand = data_rand, plot_url = plot_url)#send_file(app.config['UPLOAD_FOLDER']+"/the-global-city-brown.pdf", as_attachment=True)
-            return render_template('visualize_scheme.html', viz_list=viz_list)
+            return render_template('visualize_scheme.html', viz_list=viz_list, head=HTML_HEAD)
 
                     #send_from_directory(app.config['UPLOAD_FOLDER'], "the-global-city-brown.pdf", as_attachment=True), \
     else:
