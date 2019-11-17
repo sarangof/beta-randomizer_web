@@ -80,16 +80,14 @@ def create_scheme():
 
 @app.route('/randomization_options',methods=['GET','POST'])
 def randomization_options():
-    if request.method == 'POST':
+    if session.get('data') is not None:
         print("session['data']")
         print(session['data'])
-        if session['data'] is not None:
-            #print(session['data'])
-            data = standardize_columns(pd.DataFrame(ast.literal_eval(session['data'])))
-            session['data'] = data.to_json()
-            return render_template('new-scheme-options.html', columns=data.columns, head=HTML_HEAD)
-        else:
-            return '''What should I do here?'''
+        data = standardize_columns(pd.DataFrame(ast.literal_eval(session['data'])))
+        session['data'] = data.to_json()
+        return render_template('new-scheme-options.html', columns=data.columns, head=HTML_HEAD)
+    else:
+        return redirect(url_for('create_scheme')) # Return to previous step
 
 @app.route('/update_scheme', methods=['GET','POST'])
 def update_scheme():
