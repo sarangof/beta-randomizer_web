@@ -10,8 +10,15 @@
 		function yesnoCheck() {
 			if (document.getElementById('Stratified').checked) {
 				document.getElementById('reveal-if-active').style.display = 'block';
-			} else document.getElementById('reveal-if-active').style.display = 'none';
+				document.getElementById('btnSubmit').disabled = true;
+			} else {
+				document.getElementById('reveal-if-active').style.display = 'none';
+				document.getElementById('btnSubmit').disabled = false;
+			}
+		}
 
+		function btnSubmitUpdate() {
+			document.getElementById('btnSubmit').disabled = $('#checkboxes_cols :checkbox:checked').length == 0;
 		}
 	</script>
 
@@ -46,19 +53,19 @@
 						value="Stratified"> Stratified random assignment.<br>
 					<br>
 					<div id="reveal-if-active" style="display:none">
-						{% for col in columns %}
-						{% if col.lower() not in ['id','participant id','participantid','index','id #'] %}
 						<div id="checkboxes_cols">
-							<input type="checkbox" name={{col}} value=1> {{col}}
+							{% for col in columns %}
+							{% if col.lower() not in ['id','participant id','participantid','index','id #'] %}
+							<input type="checkbox" onchange="btnSubmitUpdate()" name={{col}} value=1> {{col}}
 							<br>
+							{% endif %}
+							{% endfor %}
 						</div>
-						{% endif %}
-						{% endfor %}
 					</div>
 					<br>
 				</div>
 
-				<button class="btn btn-primary" type='submit'>Submit</button>
+				<button id="btnSubmit" class="btn btn-primary" type='submit'>Submit</button>
 			</form>
 		</div>
 	</div>

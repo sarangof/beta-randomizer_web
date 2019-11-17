@@ -22,7 +22,7 @@
 				<li class="breadcrumb-item"><a
 						href="/{{'update' if ('update' in referer) else 'create'}}_scheme">{{'Update ' if ('update' in referer) else 'Create '}}scheme</a>
 				</li>
-				{% if 'create' in referer %}
+				{% if not ('update' in referer) %}
 				<li class="breadcrumb-item"><a href="/randomization_options">Randomization options</a></li>
 				{% endif %}
 				<li class="breadcrumb-item active" aria-current="page">Visualize scheme</li>
