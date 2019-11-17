@@ -87,7 +87,8 @@ def randomization_options():
         session['data'] = data.to_json()
         return render_template('new-scheme-options.html', columns=data.columns, head=HTML_HEAD)
     else:
-        return redirect(url_for('create_scheme')) # Return to previous step
+        # Return to previous step
+        return redirect(url_for('create_scheme'))
 
 @app.route('/update_scheme', methods=['GET','POST'])
 def update_scheme():
@@ -185,7 +186,8 @@ def visualize_scheme():
 
                     #send_from_directory(app.config['UPLOAD_FOLDER'], "the-global-city-brown.pdf", as_attachment=True), \
     else:
-        return '''This should never happen.'''
+        # Return to home
+        return redirect(url_for('choose_rand_option'))
     
 @app.route('/df_download/<filename>',methods=['GET','POST'])
 def df_download(filename):
