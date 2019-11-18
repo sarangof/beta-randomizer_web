@@ -125,7 +125,7 @@ def update_scheme():
             session['data_new'] = pd.read_excel(file_all_new).to_json()
             session['filename1'] = str(file_RCT.filename)
 
-            return redirect(url_for('visualize_scheme')+'?update',code=307)
+            return redirect(url_for('visualize_scheme'),code=307)
 
     else:
         print("GETUPDATESCHEME")
@@ -143,6 +143,7 @@ def visualize_scheme():
         strat_columns = []
         pure_randomization_boolean = False
         sample_p = 50.
+        filename = 'data_rand.xlsx'
         if session['update']==True:
             session_update=True
             data_rct = pd.DataFrame(ast.literal_eval(session['data_rct']))
@@ -150,7 +151,7 @@ def visualize_scheme():
             filename1 = session['filename1']
             valid_update, message_update, pure_randomization_boolean, strat_columns, sample_p = check_strat_file(data_rct, data_new, session['filename1'])
             if valid_update:
-                data_rand, strat_columns = update_stratification(data_rct, data_new, session['filename1'], pure_randomization_boolean, strat_columns)
+                data_rand, strat_columns, filename = update_stratification(data_rct, data_new, session['filename1'], pure_randomization_boolean, strat_columns)
                 session['data_rand'] = data_rand.to_json()
             else:
                 flash(message_update)
@@ -168,21 +169,20 @@ def visualize_scheme():
 
             rand_type = request.form.get('randomization_type')
             if rand_type == 'Simple':
-                data_rand = stratify(data_set, strat_columns,
+                data_rand, filename = stratify(data_set, strat_columns,
                                         pure_randomization_boolean=True, 
                                         sample_p=sample_p)
 
             elif rand_type == 'Stratified':
-                data_rand = stratify(data_set, strat_columns,
+                data_rand, filename = stratify(data_set, strat_columns,
                                     pure_randomization_boolean=False, 
                                     sample_p=sample_p)
 
         if (not data_rand.empty):
-            data_rand.to_excel("data_rand.xlsx")
             viz_list = create_plots(data_rand,strat_columns,pure_randomization_boolean,sample_p,session_update)
             
             #return render_template('visualize_scheme.html', data_rand = data_rand, plot_url = plot_url)#send_file(app.config['UPLOAD_FOLDER']+"/the-global-city-brown.pdf", as_attachment=True)
-            return render_template('visualize_scheme.html', viz_list=viz_list, head=HTML_HEAD, referer=request.headers.get("Referer"))
+            return render_template('visualize_scheme.html', viz_list=viz_list, head=HTML_HEAD, filename=filename, referer=request.headers.get("Referer"))
 
                     #send_from_directory(app.config['UPLOAD_FOLDER'], "the-global-city-brown.pdf", as_attachment=True), \
     else:
@@ -191,7 +191,7 @@ def visualize_scheme():
     
 @app.route('/df_download/<filename>',methods=['GET','POST'])
 def df_download(filename):
-    return send_file(app.config['UPLOAD_FOLDER']+"/data_rand.xlsx", as_attachment=True)
+    return send_file("{}/{}".format(app.config['UPLOAD_FOLDER'],filename), as_attachment=True)
     #return send_from_directory(app.config['UPLOAD_FOLDER'], filename, as_attachment=True)
 
 @app.route('/css/<filename>')

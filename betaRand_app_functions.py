@@ -111,10 +111,10 @@ def stratify(data_set,strat_columns,pure_randomization_boolean,sample_p, pure_ra
     
     filename = 'test'
 
-    name = filename.rsplit(".")[0]+"|"+",".join(strat_columns)+'_'+str(todaysdate)+'_'+str(int(len(data_set)))+'_'+str(int(100-sample_p))+'_RCT'+'.xlsx'
+    name = filename.rsplit(".")[0]+"--"+",".join(strat_columns)+'_'+str(todaysdate)+'_'+str(int(len(data_set)))+'_'+str(int(100-sample_p))+'_RCT'+'.xlsx'
     data_set.to_excel(name, na_rep='',index=False)
 
-    return data_set
+    return data_set, name
 
 def update_stratification(data_set, data_new, filename1, pure_randomization_boolean, strat_columns, pure_randomization_text = 'Pure randomization'):
     """ 
@@ -299,11 +299,11 @@ def update_stratification(data_set, data_new, filename1, pure_randomization_bool
             data_set.loc[age_index[or_],col_] = age_copy[or_] 
 
     if not pure_randomization_boolean: 
-        name = filename1.rsplit("|")[0]+"|"+",".join(strat_columns)+'_'+todaysdate+'_'+str(int(len(total_data)))+'_'+str(int(int(sample_p)))+'_RCT'+'.xlsx'
-        name_static = filename1.rsplit("|")[0]+"|"+",".join(strat_columns)+'_'+todaysdate+'_'+str(int(len(total_data)))+'_'+str(int(int(sample_p)))+'.xlsx'
+        name = filename1.rsplit("--")[0]+"--"+",".join(strat_columns)+'_'+todaysdate+'_'+str(int(len(total_data)))+'_'+str(int(int(sample_p)))+'_RCT'+'.xlsx'
+        name_static = filename1.rsplit("--")[0]+"--"+",".join(strat_columns)+'_'+todaysdate+'_'+str(int(len(total_data)))+'_'+str(int(int(sample_p)))+'.xlsx'
     else:
-        name = filename1.rsplit("|")[0]+"|"+str(pure_randomization_text)+'_'+todaysdate+'_'+str(int(len(total_data)))+'_'+str(int(int(sample_p)))+'_RCT'+'.xlsx'
-        name_static = filename1.rsplit("|")[0]+"|"+str(pure_randomization_text)+'.xlsx'+'_'+todaysdate+'_'+str(int(len(total_data)))+'_'+str(int(int(sample_p)))+'.xlsx'
+        name = filename1.rsplit("--")[0]+"--"+str(pure_randomization_text)+'_'+todaysdate+'_'+str(int(len(total_data)))+'_'+str(int(int(sample_p)))+'_RCT'+'.xlsx'
+        name_static = filename1.rsplit("--")[0]+"--"+str(pure_randomization_text)+'.xlsx'+'_'+todaysdate+'_'+str(int(len(total_data)))+'_'+str(int(int(sample_p)))+'.xlsx'
  
 
     total_data = total_data.set_index(data_set.columns[0])
@@ -320,7 +320,7 @@ def update_stratification(data_set, data_new, filename1, pure_randomization_bool
             pd.crosstab(total_data[col], total_data['group-rct']).to_excel(writer, sheet_name=col)
     writer.save()
 
-    return data_set, strat_columns
+    return data_set, strat_columns, name
 
 def check_strat_file(data_rct, data_new, filename1, pure_randomization_text = 'Pure randomization'):
 
@@ -363,11 +363,11 @@ def check_strat_file(data_rct, data_new, filename1, pure_randomization_text = 'P
         if set(data_rct.columns)-set(['grouprct','date','batch']) == set(data_new.columns):
             #CHANGE THIS
             try:
-                if len(filename1.rsplit("|")) <=1:
+                if len(filename1.rsplit("--")) <=1:
                     message_update = "Please check the naming structure of the mother file."
                 else:
                     valid_update = True
-                    strat_columns = filename1.rsplit("|")[-1].rsplit("_")[0].rsplit(",")
+                    strat_columns = filename1.rsplit("--")[-1].rsplit("_")[0].rsplit(",")
                     if strat_columns[0] != pure_randomization_text:
                         strat_columns = [''.join(c.lower() for c in x if not c.isspace()) for x in strat_columns]
                     else:
