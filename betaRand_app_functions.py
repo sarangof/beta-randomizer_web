@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import datetime as dt
 import random
-from itertools import cycle
+from itertools import cycle, repeat
 import io
 from dateutil import parser
 import seaborn as sns
@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 from bokeh.io import show, output_file
 from bokeh.plotting import figure
 from bokeh.embed import components
-from bokeh.models import ColumnDataSource, FactorRange, Span
+from bokeh.models import ColumnDataSource, FactorRange, Span, NumeralTickFormatter, HoverTool
 from bokeh.transform import factor_cmap
 
 
@@ -444,7 +444,7 @@ def create_plots(data_rand, strat_columns, pure_randomization_boolean, sample_p,
         except ValueError:
             print("NOT NUMERIC")
             #print(data_rand)
-            df = (100*(pd.crosstab(data_rand['group-rct'], data_rand[strat_columns[i]], normalize='columns')))#.set_index([])
+            df = pd.crosstab(data_rand['group-rct'], data_rand[strat_columns[i]], normalize='columns')#.set_index([])
             # df = df.stack().reset_index().rename(columns={0:'Percentage'}) 
             print(df)
             palette = ["#c9d9d3", "#718dbf", "#e84d60"]
@@ -460,15 +460,24 @@ def create_plots(data_rand, strat_columns, pure_randomization_boolean, sample_p,
             print(x)
             pcts_ = list(df.transpose().stack().values) # like an hstack
             print(pcts_)
-            source = ColumnDataSource(data=dict(x=x, counts=pcts_))
 
-            TOOLTIPS = [
-                ('Percentage', '$pcts_'),
-                ('Goal for control group', '$sample_p')
-            ]
+            sample_p = sample_p / 100
+            
+            source = ColumnDataSource(data=dict(
+                x=x, counts=pcts_, sample_p=list(repeat(sample_p, len(x)))))
+
+            hover = HoverTool(
+                        tooltips = [
+                            ('Percentage', '@counts{%0.2f}'),
+                            ('Goal for control group', '@sample_p{%0.2f}')
+                        ],
+                        formatters = {'Percentage': 'numeral', 'Goal for control group':'numeral'}
+                    )
 
             p = figure(x_range=FactorRange(*x), plot_height=350, title=strat_columns[i],
-                       toolbar_location=None, tools='hover',tooltips=TOOLTIPS)
+                       toolbar_location=None, tools=[hover])
+            
+            p.yaxis.formatter = NumeralTickFormatter(format='0 %')
 
             p.vbar(x='x', top='counts', width=0.9, source=source, line_color="white",
                 fill_color=factor_cmap('x', palette=palette, factors=list(df.index.values), start=1, end=2))
