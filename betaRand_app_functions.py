@@ -111,7 +111,11 @@ def stratify(data_set,strat_columns,pure_randomization_boolean,sample_p, pure_ra
     
     filename = 'test'
 
-    name = filename.rsplit(".")[0]+"--"+",".join(strat_columns)+'_'+str(todaysdate)+'_'+str(int(len(data_set)))+'_'+str(int(100-sample_p))+'_RCT'+'.xlsx'
+    if not pure_randomization_boolean: 
+        name = filename.rsplit("--")[0]+"--"+",".join(strat_columns)+'_'+todaysdate+'_'+str(int(len(data_set)))+'_'+str(int(int(100-sample_p)))+'_RCT'+'.xlsx'
+    else:
+        name = filename.rsplit("--")[0]+"--"+str(pure_randomization_text)+'_'+todaysdate+'_'+str(int(len(data_set)))+'_'+str(int(int(100-sample_p)))+'_RCT'+'.xlsx'
+     
     data_set.to_excel(name, na_rep='',index=False)
 
     return data_set, name
@@ -160,9 +164,12 @@ def update_stratification(data_set, data_new, filename1, pure_randomization_bool
     data_new['group-rct'] = ''
     data_temp = data_new.append(data_set.ix[:, :]) # there will be a problem with indexing, I can see it coming.
 
+    if pure_randomization_boolean and pure_randomization_text in strat_columns:
+        strat_columns.remove(pure_randomization_text)
+
     numeric_strat_columns = ~data_set[strat_columns].select_dtypes(include=[np.number]).empty
     if numeric_strat_columns:
-        data_temp, age_copy, age_index = group_age(data_temp,strat_columns)
+        data_temp, age_copy, age_index = group_age(data_temp, strat_columns)
 
     #data_set = data_temp[data_temp.date != todaysdate] # seleccionar datos ya asignados
     data_set = data_temp[(data_temp['group-rct'].isin(['control','intervention']))] # seleccionar datos ya asignados
@@ -296,7 +303,7 @@ def update_stratification(data_set, data_new, filename1, pure_randomization_bool
         print("age_copy")
         print(age_copy)
         for or_,col_ in enumerate(data_set[strat_columns].select_dtypes(include=[np.number]).columns):
-            data_set.loc[age_index[or_],col_] = age_copy[or_] 
+            data_set.loc[age_index[or_],col_] = age_copy[or_]
 
     if not pure_randomization_boolean: 
         name = filename1.rsplit("--")[0]+"--"+",".join(strat_columns)+'_'+todaysdate+'_'+str(int(len(total_data)))+'_'+str(int(int(sample_p)))+'_RCT'+'.xlsx'
