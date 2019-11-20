@@ -306,11 +306,11 @@ def update_stratification(data_set, data_new, filename1, pure_randomization_bool
             data_set.loc[age_index[or_],col_] = age_copy[or_]
 
     if not pure_randomization_boolean: 
-        name = filename1.rsplit("--")[0]+"--"+",".join(strat_columns)+'_'+todaysdate+'_'+str(int(len(total_data)))+'_'+str(int(int(sample_p)))+'_RCT'+'.xlsx'
-        name_static = filename1.rsplit("--")[0]+"--"+",".join(strat_columns)+'_'+todaysdate+'_'+str(int(len(total_data)))+'_'+str(int(int(sample_p)))+'.xlsx'
+        name = filename1.rsplit("--")[0]+"--"+",".join(strat_columns)+'_'+todaysdate+'_'+str(int(len(total_data)))+'_'+str(int(sample_p))+'_RCT'+'.xlsx'
+        name_static = filename1.rsplit("--")[0]+"--"+",".join(strat_columns)+'_'+todaysdate+'_'+str(int(len(total_data)))+'_'+str(int(sample_p))+'.xlsx'
     else:
-        name = filename1.rsplit("--")[0]+"--"+str(pure_randomization_text)+'_'+todaysdate+'_'+str(int(len(total_data)))+'_'+str(int(int(sample_p)))+'_RCT'+'.xlsx'
-        name_static = filename1.rsplit("--")[0]+"--"+str(pure_randomization_text)+'.xlsx'+'_'+todaysdate+'_'+str(int(len(total_data)))+'_'+str(int(int(sample_p)))+'.xlsx'
+        name = filename1.rsplit("--")[0]+"--"+str(pure_randomization_text)+'_'+todaysdate+'_'+str(int(len(total_data)))+'_'+str(int(sample_p))+'_RCT'+'.xlsx'
+        name_static = filename1.rsplit("--")[0]+"--"+str(pure_randomization_text)+'.xlsx'+'_'+todaysdate+'_'+str(int(len(total_data)))+'_'+str(int(sample_p))+'.xlsx'
  
 
     total_data = total_data.set_index(data_set.columns[0])
@@ -411,6 +411,8 @@ def warning_new_words(new_categories):
 
 def create_plots(data_rand, strat_columns, pure_randomization_boolean, sample_p,session_update):
     viz_list = []
+    sample_p = sample_p / 100
+
     for i in range(len(strat_columns)):
         print(strat_columns[i])
         print(data_rand[strat_columns[i]])
@@ -460,8 +462,6 @@ def create_plots(data_rand, strat_columns, pure_randomization_boolean, sample_p,
             print(x)
             pcts_ = list(df.transpose().stack().values) # like an hstack
             print(pcts_)
-
-            sample_p = sample_p / 100
             
             source = ColumnDataSource(data=dict(
                 x=x, counts=pcts_, sample_p=list(repeat(sample_p, len(x)))))

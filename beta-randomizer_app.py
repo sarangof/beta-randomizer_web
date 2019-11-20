@@ -108,7 +108,7 @@ def update_scheme():
             return redirect(request.url)
 
         if file_new and file_RCT and allowed_file(file_new.filename) and allowed_file(file_RCT.filename):
-
+  
             print("allowed files for scheme updation")
             filename_RCT = secure_filename(file_RCT.filename)
             filename_new = secure_filename(file_new.filename)
