@@ -189,7 +189,8 @@ def update_stratification(data_set, data_new, filename1, pure_randomization_bool
             n = np.ceil((1-p)*len(data_temp)) 
         else:
             print("ERROOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOR")
-        df['Size'] = np.ceil(n*(df[df.columns[-1]]/len(data_temp)).values) # number of individuals in the selected intervention that would make up for a balanced contribution to the covariates
+        df['Size'] = np.ceil(n*(df[df.columns[-1]]/len(data_temp)).values) 
+        # number of individuals in the selected intervention that would make up for a balanced contribution to the covariates
 
 
         rows_delete = list(range(0,len(df)))
