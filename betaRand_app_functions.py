@@ -157,7 +157,7 @@ def update_stratification(data_set, data_new, filename1, pure_randomization_bool
     data_set['date'] = data_set['date'].apply(lambda x: parser.parse(x.split('t')[0]))
     #data_set['date'] =  pd.to_datetime(data_set['date'], format='%Y%b%d')
 
-    data_set_copy = data_set
+    data_set_copy = data_set.copy()
     todaysdate = str(dt.datetime.today().date())
     data_new['date'] = todaysdate
 
@@ -263,7 +263,7 @@ def update_stratification(data_set, data_new, filename1, pure_randomization_bool
             else:
                 ind_list_b = elegible.index.values
                 ind_list   = np.append(ind_list,ind_list_b)
-        ind_list = map(int, ind_list)
+        ind_list = ind_list.astype(int).tolist()
     else: 
         label_pre = data_set['group-rct'].value_counts().loc[label] 
 
@@ -282,7 +282,7 @@ def update_stratification(data_set, data_new, filename1, pure_randomization_bool
     #print(ind_list)
     if label == 'control':
         data_new.loc[ind_list,'group-rct'] = "control"
-        data_new.loc[set(data_new.index.values ) - set(ind_list),'group-rct'] = "intervention"
+        data_new.loc[set(data_new.index.values) - set(ind_list),'group-rct'] = "intervention"
         for x in ind_list:
             if (x not in data_new.index):
                 print("malo")
