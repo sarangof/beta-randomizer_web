@@ -17,7 +17,7 @@ from bokeh.transform import factor_cmap
 sns.set_style("whitegrid")
 
 def standardize_columns(data):
-    data.columns = map(str, data.columns) 
+    data.columns = data.columns.astype(str)
     data.columns = [''.join(str.lower(e) for e in string if e.isalnum()) for string in data.columns] # replace all special characters in columns.
     df_str_columns = data.select_dtypes(exclude=[np.datetime64,np.number])
     for cols in df_str_columns.columns:
@@ -137,14 +137,14 @@ def update_stratification(data_set, data_new, filename1, pure_randomization_bool
     data_set.index = data_set.index.astype('int')
     data_new.index = data_new.index.astype('int')
 
-    data_set.dropna(axis=0,inplace=True,how='all',subset=data_set.columns[2:])
+    data_set.dropna(axis=0,inplace=True,how='all',subset=data_set.columns[1:])
     data_set.dropna(axis=1,inplace=True,how='all')
     try:
         data_set = data_set.apply(lambda x: x.astype(str).str.lower())
     except UnicodeEncodeError:
         pass
 
-    data_new.dropna(axis=0,inplace=True,how='all',subset=data_new.columns[2:])
+    data_new.dropna(axis=0,inplace=True,how='all',subset=data_new.columns[1:])
     data_new.dropna(axis=1,inplace=True,how='all')
     try:
         data_new = data_new.apply(lambda x: x.astype(str).str.lower())
@@ -339,7 +339,7 @@ def check_strat_file(data_rct, data_new, filename1, pure_randomization_text = 'P
     data_rct.dropna(axis=1,how='all',inplace=True)
     data_rct.dropna(axis=0,how='all',inplace=True)
 
-    data_rct.columns = map(str, data_rct.columns)
+    data_rct.columns = data_rct.columns.astype(str)
     available_columns = []
     try:
         available_columns = list(set(data_rct.columns.values) - set(['group-rct','date','batch']))
@@ -353,17 +353,16 @@ def check_strat_file(data_rct, data_new, filename1, pure_randomization_text = 'P
     except UnicodeEncodeError:
         data_rct.replace(r'[,\"\']','', regex=True).replace(r'\s*([^\s]+)\s*', r'\1', regex=True, inplace=True)
 
+    data_new.columns = data_new.columns.astype(str)
+    data_new.columns = data_new.columns.str.lower()
+    data_new.columns = data_new.columns.str.replace(' ', '')
     data_new.dropna(axis=1,how='all',inplace=True)
-    data_new.dropna(axis=0,how='all',inplace=True,subset=data_new.columns[2:])
+    data_new.dropna(axis=0,how='all',inplace=True,subset=data_new.columns[1:])
     data_new = standardize_columns(data_new)
     data_new = data_new.apply(lambda x: x.astype(str).str.lower())
     
     data_new.columns = [''.join(str.lower(str(e)) for e in string if e.isalnum()) for string in data_new.columns]
     data_new.replace(r'[,\"\']','', regex=True).replace(r'\s*([^\s]+)\s*', r'\1', regex=True, inplace=True)
-    
-    data_new.columns = map(str, data_new.columns)
-    data_new.columns = map(str.lower, data_new.columns)
-    data_new.columns = data_new.columns.str.replace(' ','')
 
     sample_p = float(filename1.rsplit("_")[-2])
 
