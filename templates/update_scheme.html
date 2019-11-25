@@ -2,6 +2,16 @@
 
 <head>
   {{head|safe}}
+  <script type="text/javascript">
+    var name;
+
+    function checkFiles() {
+      var condition1 = !document.getElementById('customFile_RCT').value.split('.')[0].endsWith('_RCT');
+      var condition2 = document.getElementById('customFile_new').value.length == 0;
+
+      document.getElementById('btnSubmit').disabled = condition1 || condition2;
+    };
+  </script>
 </head>
 
 <body>
@@ -13,21 +23,23 @@
       </ol>
     </nav>
     <div class="jumbotron">
-      <h1 class="display-4">Create new scheme</h1>
+      <h1 class="display-4">Update scheme</h1>
       <p class="lead">Let's update some schemes!</p>
       <hr class="my-4">
       <p>Please input files</p>
       <hr style="visibility: hidden;">
       <form method="POST" action="{{url_for('update_scheme')}}" enctype="multipart/form-data">
         <div class="custom-file">
-          <input type="file" id="customFile_RCT" name="file_RCT">
+          <input class="custom-file-input" type="file" id="customFile_RCT" name="file_RCT" onchange="checkFiles();">
+          <label class="custom-file-label" for="customFile_RCT">Choose the scheme file ending with "_RCT"</label>
         </div>
         <hr style="visibility: hidden;">
         <div class="custom-file">
-          <input type="file" id="customFile_new" name="file_new">
+          <input class="custom-file-input" type="file" id="customFile_new" name="file_new" onchange="checkFiles();">
+          <label class="custom-file-label" for="customFile_new">Choose the new data set </label>
         </div>
         <hr style="visibility: hidden;">
-        <button class="btn btn-primary" type="submit">Upload</button>
+        <button id="btnSubmit" class="btn btn-primary" type="submit" disabled>Upload</button>
       </form>
     </div>
   </div>
