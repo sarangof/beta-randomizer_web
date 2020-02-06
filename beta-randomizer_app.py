@@ -40,7 +40,6 @@ def allowed_file(filename):
 
 @app.route('/', methods=['GET', 'POST'])
 def choose_rand_option():
-    session.clear()
     session['data'] = pd.DataFrame([]).to_json()
     # NEED TO TURN THESE INTO POST REQUESTS INSTEAD OF REDIRECTS.
     if request.method == 'POST':
