@@ -1,0 +1,46 @@
+<html>
+
+<head>
+	{{head|safe}}
+
+	<link rel="stylesheet" href="https://cdn.pydata.org/bokeh/release/bokeh-1.0.4.min.css" type="text/css" />
+	<link rel="stylesheet" href="https://cdn.pydata.org/bokeh/release/bokeh-widgets-1.0.4.min.css" type="text/css" />
+	<link rel="stylesheet" href="https://cdn.pydata.org/bokeh/release/bokeh-tables-1.0.4.min.css" type="text/css">
+
+	<script type="text/javascript" src="https://cdn.pydata.org/bokeh/release/bokeh-1.0.4.min.js"></script>
+	<script type="text/javascript" src="https://cdn.pydata.org/bokeh/release/bokeh-api-1.0.4.min.js"></script>
+	<script type="text/javascript" src="https://cdn.pydata.org/bokeh/release/bokeh-widgets-1.0.4.min.js"></script>
+	<script type="text/javascript" src="https://cdn.pydata.org/bokeh/release/bokeh-tables-1.0.4.min.js"></script>
+
+</head>
+
+<body>
+	<div class="container">
+		<nav aria-label="breadcrumb">
+			<ol class="breadcrumb">
+				<li class="breadcrumb-item"><a href="/">Home</a></li>
+				<li class="breadcrumb-item"><a
+						href="/{{'update' if ('update' in referer) else 'create'}}_scheme">{{'Update ' if ('update' in referer) else 'Create '}}scheme</a>
+				</li>
+				{% if not ('update' in referer) %}
+				<li class="breadcrumb-item"><a href="/randomization_options">Randomization options</a></li>
+				{% endif %}
+				<li class="breadcrumb-item active" aria-current="page">Visualize scheme</li>
+			</ol>
+		</nav>
+		<div class="jumbotron">
+			<h1 class="display-4">Visualize results</h1>
+			{% with messages = get_flashed_messages() %}
+			{% if messages %}
+			<ul class=flashes>
+				{% for message in messages %}
+				<li>{{ message }}</li>
+				{% endfor %}
+			</ul>
+			{% endif %}
+			{% endwith %}
+		</div>
+	</div>
+</body>
+
+</html>
