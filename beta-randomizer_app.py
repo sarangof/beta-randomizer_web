@@ -168,7 +168,7 @@ def visualize_scheme():
             if valid_update:
                 data_rand, strat_columns, filename = update_stratification(
                     data_rct, data_new, session['filename1'], pure_randomization_boolean, strat_columns)
-                session['data_rand'] = data_rand.to_json()
+                # session['data_rand'] = data_rand.to_json()
             else:
                 flash(message_update)
                 # redirect(url_for('update_scheme'))
